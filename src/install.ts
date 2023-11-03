@@ -10,12 +10,21 @@ import {
 
 const program = new Command();
 program
+	.name("kas-installer")
+	.description(
+		"KDE Activity Installer copies and deletes scripts used for KDE Activity life-cycle events.\n"
+		+ "For more details see: https://github.com/Iron-Oxide-Labs-LLC/kas-installer"
+	)
+	.version(process.env.npm_package_version as string)
 	.option("-d, --delete-old", "Delete old scripts")
 	.option(
 		"-a, --activities-folder <folder>",
 		"Activities config folder (default: ~/.local/share/kactivitymanagerd/activities)"
 	)
-	.option("-s, --scripts-folder [folder]", "Scripts folder (default: ./src/scripts)")
+	.option(
+		"-s, --scripts-folder [folder]",
+		"Scripts folder (default: ./src/scripts)"
+	)
 	.option(
 		"-i, --installed-filename [filename]",
 		"Filename to assign to installed scripts (default: kas-script.sh)"

@@ -1,6 +1,6 @@
 {
 	"name": "kas-installer",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Installs KDE Activity Scripts",
 	"main": "index.js",
 	"author": "Iron Oxide Labs LLC",
