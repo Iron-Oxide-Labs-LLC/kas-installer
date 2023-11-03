@@ -1,6 +1,6 @@
 {
 	"name": "kas-installer",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"description": "Installs KDE Activity Scripts",
 	"author": "Iron Oxide Labs LLC <admin@ironoxidelabs.com>",
 	"license": "MIT",
@@ -9,10 +9,10 @@
 		"url": "https://github.com/Iron-Oxide-Labs-LLC/kas-installer.git"
 	},
 	"bin": {
-		"kas-installer": "dist/install.ts"
+		"kas-installer": "dist/install.js"
 	},
 	"scripts": {
-		"start": "ts-node src/install.ts",
+		"start": "node ./dist/install.js",
 		"test": "jest",
 		"build": "tsc --build",
 		"clean": "tsc --build --clean",
