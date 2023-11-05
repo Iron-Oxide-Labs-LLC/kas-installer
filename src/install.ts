@@ -54,7 +54,7 @@ const getRawActivityData = (): string =>
 		"qdbus --literal org.kde.ActivityManager /ActivityManager/Activities ListActivitiesWithInformation"
 	).toString();
 
-const installedScripts = copyScriptsForEvents(
+const installedScripts = await copyScriptsForEvents(
 	parseActivityData(getRawActivityData()),
 	activitiesConfigFolder,
 	scriptsFolder,
@@ -63,10 +63,12 @@ const installedScripts = copyScriptsForEvents(
 );
 
 if (deleteOld) {
-	uninstallOldScripts(
+	await uninstallOldScripts(
 		activitiesConfigFolder,
 		installedScripts,
 		dryRun,
 		installedScriptFilename
 	);
 }
+
+console.log("Installation complete!");

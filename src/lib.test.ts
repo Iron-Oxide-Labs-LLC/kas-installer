@@ -1,5 +1,5 @@
 import mockFs from "mock-fs";
-import fs from "fs";
+import { promises as fs } from "fs";
 import {
 	getScriptFileActivityName,
 	parseActivityData,
@@ -10,6 +10,18 @@ import {
 import path from "path";
 
 const installedScriptFilename = "kas-script.sh";
+
+const checkFileExists = async (filePath: string) => {
+	try {
+		await fs.access(filePath);
+		return true;
+	} catch (error: any) {
+		if (error.code === "ENOENT") {
+			return false;
+		}
+		throw error;
+	}
+};
 
 describe("parseActivityData", () => {
 	const mockActivityIdMap = new Map<string, string>([
@@ -127,8 +139,8 @@ describe("copyScriptsForEvents", () => {
 			mockFs.restore();
 			installedScripts = new Set<string>();
 		});
-		const doCopyScriptsForEvents = () => {
-			installedScripts = copyScriptsForEvents(
+		const doCopyScriptsForEvents = async () => {
+			installedScripts = await copyScriptsForEvents(
 				mockActivityIdMap,
 				activitiesConfigFolder,
 				scriptsPath,
@@ -136,79 +148,81 @@ describe("copyScriptsForEvents", () => {
 				installedScriptFilename
 			);
 		};
-		it("no files", () => {
+		it("no files", async () => {
 			mockFs({
 				[scriptsPath]: {},
 				...mockFolders,
 			});
-			doCopyScriptsForEvents();
+			await doCopyScriptsForEvents();
 			const activatedActivityAFolder = path.join(
 				activitiesConfigFolder,
 				"some-id-a",
 				"activated"
 			);
-			const result = fs.existsSync(activatedActivityAFolder)
-				? fs.readdirSync(activatedActivityAFolder).length
+			const result = (await checkFileExists(activatedActivityAFolder))
+				? (await fs.readdir(activatedActivityAFolder)).length
 				: 0;
 			expect(result).toEqual(0);
 		});
 		describe("plenty of files", () => {
-			beforeEach(() => {
+			beforeEach(async () => {
 				mockFs(plentyOfFilesMockFS);
-				doCopyScriptsForEvents();
+				await doCopyScriptsForEvents();
 			});
-			it("valid files copied", () => {
+			it("valid files copied", async () => {
 				expect(
-					fs.readFileSync(
+					await fs.readFile(
 						"/activities/scripts/some-id-a/activated/kas-script.sh",
 						"utf8"
 					)
 				).toEqual("Activity A activated");
 				expect(
-					fs.readFileSync(
+					await fs.readFile(
 						"/activities/scripts/some-id-b/activated/kas-script.sh",
 						"utf8"
 					)
 				).toEqual("Activity B activated");
 				expect(
-					fs.readFileSync(
+					await fs.readFile(
 						"/activities/scripts/some-id-b/stopped/kas-script.sh",
 						"utf8"
 					)
 				).toEqual("Activity B stopped");
 				expect(
-					fs.readFileSync(
+					await fs.readFile(
 						"/activities/scripts/some-id-d/started/kas-script.sh",
 						"utf8"
 					)
 				).toEqual("Activity D started");
 			});
-			it("invalid files skipped", () => {
+			it("invalid files skipped", async () => {
 				expect(
-					fs.existsSync(
+					await checkFileExists(
 						"/activities/scripts/some-id-a/error/kas-script.sh"
 					)
 				).toEqual(false);
 				expect(
-					fs.existsSync(
+					await checkFileExists(
 						"/activities/scripts/some-id-b/error/kas-script.sh"
 					)
 				).toEqual(false);
 				expect(
-					fs.existsSync("/activities/scripts/some-id-b/kas-script.sh")
+					await checkFileExists(
+						"/activities/scripts/some-id-b/kas-script.sh"
+					)
 				).toEqual(false);
 				expect(
-					fs.existsSync(
+					await checkFileExists(
 						"/activities/scripts/some-id-a/started/kas-script.sh"
 					)
 				).toEqual(false);
 				expect(
-					fs.existsSync(
+					await checkFileExists(
 						"/activities/scripts/some-id-b/started/kas-script.sh"
 					)
 				).toEqual(false);
 				expect(
-					fs.existsSync(
+					await checkFileExists(
 						"/activities/scripts/some-id-c/started/kas-script.sh"
 					)
 				).toEqual(false);
@@ -239,9 +253,9 @@ describe("copyScriptsForEvents", () => {
 		});
 	});
 	describe("dry run", () => {
-		it("copy some files", () => {
+		it("copy some files", async () => {
 			mockFs(plentyOfFilesMockFS);
-			const installedScripts = copyScriptsForEvents(
+			const installedScripts = await copyScriptsForEvents(
 				mockActivityIdMap,
 				activitiesConfigFolder,
 				scriptsPath,
@@ -253,7 +267,7 @@ describe("copyScriptsForEvents", () => {
 				"/activities/scripts/some-id-a/activated/kas-script.sh"
 			);
 			expect(
-				fs.existsSync(
+				await checkFileExists(
 					"/activities/scripts/some-id-a/activated/kas-script.sh"
 				)
 			).toEqual(false);
@@ -315,19 +329,19 @@ describe("uninstallOldScripts", () => {
 		});
 	});
 	describe("uninstall files", () => {
-		it("uninstall everything", () => {
-			uninstallOldScripts(
+		it("uninstall everything", async () => {
+			await uninstallOldScripts(
 				activitiesConfigFolder,
 				new Set([]),
 				false,
 				installedScriptFilename
 			);
-			allScripts.forEach((p) => {
-				expect(fs.existsSync(p)).toEqual(false);
+			allScripts.forEach(async (p) => {
+				expect(await checkFileExists(p)).toEqual(false);
 			});
 		});
-		it("uninstall some", () => {
-			uninstallOldScripts(
+		it("uninstall some", async () => {
+			await uninstallOldScripts(
 				activitiesConfigFolder,
 				new Set([
 					"/activities/scripts/some-id-c/started/kas-script.sh",
@@ -342,25 +356,25 @@ describe("uninstallOldScripts", () => {
 				],
 				["/activities/scripts/some-id-b/stopped/kas-script.sh", false],
 				["/activities/scripts/some-id-c/started/kas-script.sh", true],
-			].forEach(([p, shouldExist]) => {
-				expect(fs.existsSync(p as string)).toEqual(
+			].forEach(async ([p, shouldExist]) => {
+				expect(await checkFileExists(p as string)).toEqual(
 					shouldExist as boolean
 				);
 			});
 		});
-		it("uninstall none", () => {
-			uninstallOldScripts(
+		it("uninstall none", async () => {
+			await uninstallOldScripts(
 				activitiesConfigFolder,
 				new Set(allScripts),
 				false,
 				installedScriptFilename
 			);
-			allScripts.forEach((p) => {
-				expect(fs.existsSync(p)).toEqual(true);
+			allScripts.forEach(async (p) => {
+				expect(await checkFileExists(p)).toEqual(true);
 			});
 		});
-		it("verify console log output", () => {
-			uninstallOldScripts(
+		it("verify console log output", async () => {
+			await uninstallOldScripts(
 				activitiesConfigFolder,
 				new Set([
 					"/activities/scripts/some-id-c/started/kas-script.sh",
@@ -378,20 +392,20 @@ describe("uninstallOldScripts", () => {
 			[
 				"/activities/scripts/some-id-a/activated/skip_this/kas-script.sh",
 				"/activities/scripts/some-id-a/activated/.hidden/activated/kas-script.sh",
-			].forEach((p) => {
-				expect(fs.existsSync(p)).toEqual(true);
+			].forEach(async (p) => {
+				expect(await checkFileExists(p)).toEqual(true);
 			});
 		});
-		it("uninstall everything", () => {
-			uninstallOldScripts(
+		it("uninstall everything", async () => {
+			await uninstallOldScripts(
 				activitiesConfigFolder,
 				new Set([]),
 				false,
 				installedScriptFilename
 			);
 		});
-		it("uninstall some", () => {
-			uninstallOldScripts(
+		it("uninstall some", async () => {
+			await uninstallOldScripts(
 				activitiesConfigFolder,
 				new Set([
 					"/activities/scripts/some-id-c/started/kas-script.sh",
@@ -400,8 +414,8 @@ describe("uninstallOldScripts", () => {
 				installedScriptFilename
 			);
 		});
-		it("uninstall none", () => {
-			uninstallOldScripts(
+		it("uninstall none", async () => {
+			await uninstallOldScripts(
 				activitiesConfigFolder,
 				new Set(allScripts),
 				false,
@@ -410,8 +424,8 @@ describe("uninstallOldScripts", () => {
 		});
 	});
 	describe("dry run", () => {
-		it("uninstall some", () => {
-			uninstallOldScripts(
+		it("uninstall some", async () => {
+			await uninstallOldScripts(
 				activitiesConfigFolder,
 				new Set([
 					"/activities/scripts/some-id-c/started/kas-script.sh",
@@ -423,7 +437,7 @@ describe("uninstallOldScripts", () => {
 				"Would delete file: /activities/scripts/some-id-a/activated/kas-script.sh"
 			);
 			expect(
-				fs.existsSync(
+				await checkFileExists(
 					"/activities/scripts/some-id-a/activated/kas-script.sh"
 				)
 			).toEqual(true);

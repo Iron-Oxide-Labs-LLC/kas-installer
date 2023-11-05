@@ -1,5 +1,5 @@
 import path from "path";
-import fs from "fs";
+import { promises as fs } from "fs";
 
 export enum Event {
 	activated = "activated",
@@ -40,77 +40,99 @@ export const getScriptFileActivityName = (
 		: null;
 };
 
-export const uninstallOldScripts = (
+export const uninstallOldScripts = async (
 	activitiesConfigFolder: string,
 	newlyInstalledScripts: Set<string>,
 	dryRun: boolean,
 	installedScriptFilename: string
-) => {
-	const processDirectory = (directoryPath: string, currentDepth: number) => {
+): Promise<void> => {
+	const processDirectory = async (
+		directoryPath: string,
+		currentDepth: number
+	): Promise<void> => {
 		if (currentDepth > 2) {
 			return;
 		}
-		fs.readdirSync(directoryPath).forEach((filename) => {
+		const files = await fs.readdir(directoryPath);
+		for (const filename of files) {
 			const filePath = path.join(directoryPath, filename);
-			if (fs.statSync(filePath).isDirectory()) {
-				processDirectory(filePath, currentDepth + 1);
+			const stat = await fs.stat(filePath);
+
+			if (stat.isDirectory()) {
+				await processDirectory(filePath, currentDepth + 1);
 			} else if (
 				!newlyInstalledScripts.has(filePath) &&
 				filename === installedScriptFilename
 			) {
 				if (!dryRun) {
-					fs.unlinkSync(filePath);
+					await fs.unlink(filePath);
 				}
 				console.log(
 					`${dryRun ? "Would delete" : "Deleted"} file: ${filePath}`
 				);
 			}
-		});
+		}
 	};
-	processDirectory(activitiesConfigFolder, 0);
+	await processDirectory(activitiesConfigFolder, 0);
 };
 
-export const copyScriptsForEvents = (
+export const copyScriptsForEvents = async (
 	activityNameIdMap: ActivityNameIdMap,
 	activitiesConfigFolder: string,
 	scriptsPath: string,
 	dryRun: boolean,
 	installedScriptFilename: string
-): Set<string> =>
-	fs
-		.readdirSync(scriptsPath)
-		.reduce((installedScripts: Set<string>, filename) => {
+): Promise<Set<string>> => {
+	const installedScripts = new Set<string>();
+	await Promise.all(
+		(
+			await fs.readdir(scriptsPath)
+		).map(async (filename) => {
 			const filePath = path.join(scriptsPath, filename);
-			const script = fs.readFileSync(filePath, "utf8");
-			[...(Object.values(Event) as Event[])].forEach((event) => {
-				const activityName = getScriptFileActivityName(filename, event);
-				if (activityName) {
-					const activityId = activityNameIdMap.get(activityName);
-					if (activityId) {
-						const destinationDir = path.join(
-							activitiesConfigFolder,
-							activityId,
-							event
-						);
-						const destinationPath = path.join(
-							destinationDir,
-							installedScriptFilename
-						);
-						console.log(
-							`${
-								dryRun ? "Would copy" : "Copying"
-							} ${filePath} to ${destinationPath}`
-						);
-						if (!fs.existsSync(destinationDir)) {
-							fs.mkdirSync(destinationDir, { recursive: true });
+			const script = await fs.readFile(filePath, "utf8");
+
+			await Promise.all(
+				(Object.values(Event) as Event[]).map(async (event) => {
+					const activityName = getScriptFileActivityName(
+						filename,
+						event
+					);
+					if (activityName) {
+						const activityId = activityNameIdMap.get(activityName);
+						if (activityId) {
+							const destinationDir = path.join(
+								activitiesConfigFolder,
+								activityId,
+								event
+							);
+							const destinationPath = path.join(
+								destinationDir,
+								installedScriptFilename
+							);
+							console.log(
+								`${
+									dryRun ? "Would copy" : "Copying"
+								} ${filePath} to ${destinationPath}`
+							);
+							try {
+								await fs.access(destinationDir);
+							} catch {
+								if (!dryRun) {
+									await fs.mkdir(destinationDir, {
+										recursive: true,
+									});
+								}
+							}
+							if (!dryRun) {
+								await fs.writeFile(destinationPath, script);
+								await fs.chmod(destinationPath, 0o755);
+							}
+							installedScripts.add(destinationPath);
 						}
-						if (!dryRun) {
-							fs.writeFileSync(destinationPath, script);
-							fs.chmodSync(destinationPath, 0o755);
-						}
-						installedScripts.add(destinationPath);
 					}
-				}
-			});
-			return installedScripts;
-		}, new Set<string>());
+				})
+			);
+		})
+	);
+	return installedScripts;
+};
