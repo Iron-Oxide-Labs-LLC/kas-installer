@@ -1,6 +1,6 @@
 # KDE Activity Script Installer
 
-[Iron Oxide Labs LLC](https://www.ironoxidelabs.com) presents the KDE Activity Script Installer or "kas-installer" for short. The kas-installer was developed to simplify the management of scripts for the lifecycle events in KDE Activities. The kas-installer automates the process of searching for scripts in a designated folder and copying them to the paths used by KDE Activities. This enables KDE Activities to use them based on the assigned activity name and lifecycle events. Here's how it works:
+[Iron Oxide Labs LLC](https://www.ironoxidelabs.com) presents the [KDE Activity Script Installer](https://www.npmjs.com/package/kas-installer) or "kas-installer" for short. The kas-installer was developed to simplify the management of scripts for the lifecycle events in KDE Activities. The kas-installer automates the process of searching for scripts in a designated folder and copying them to the paths used by KDE Activities. This enables KDE Activities to use them based on the assigned activity name and lifecycle events. Here's how it works:
 
 1. **Script Matching**: The installer matches the name of the activity and the lifecycle event to the name of the script you provide.
 
@@ -21,10 +21,10 @@ npm install -g kas-installer
 To match script files to KDE activities and lifecycle events, kas-installer follows a strict file naming convention. The script file name is expected to include the KDE activity name in lowercase, with special characters removed, spaces replaced by dashes, followed by a dash and the name of the lifecycle event.
 
 For example:
-- If you have a KDE Activity called "Filing Taxes & Accounting" and you want a script to run when that activity is started, you should name your script: `filing-taxes-accounting-started.sh`
-- For a script to run when the activity is stopped, the filename should be: `filing-taxes-accounting-stopped.sh`
-- Similarly, for other lifecycle events, follow the pattern: `activity-name-lifecycle-event.sh`
 
+-   If you have a KDE Activity called "Filing Taxes & Accounting" and you want a script to run when that activity is started, you should name your script: `filing-taxes-accounting-started.sh`
+-   For a script to run when the activity is stopped, the filename should be: `filing-taxes-accounting-stopped.sh`
+-   Similarly, for other lifecycle events, follow the pattern: `activity-name-lifecycle-event.sh`
 
 ## Basic Usage
 
