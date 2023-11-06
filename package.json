@@ -9,6 +9,9 @@
 		"type": "git",
 		"url": "https://github.com/Iron-Oxide-Labs-LLC/kas-installer.git"
 	},
+	"files": [
+		"dist/**/*"
+	],
 	"bin": {
 		"kas-installer": "dist/install.js"
 	},
@@ -18,7 +21,7 @@
 		"prebuild": "node scripts/prebuild.js",
 		"build": "rollup -c",
 		"clean": "rimraf ./dist",
-		"prepare": "yarn clean && yarn run build && chmod +x dist/install.js",
+		"prepare": "yarn clean && yarn run build",
 		"prepublishOnly": "yarn test"
 	},
 	"dependencies": {
