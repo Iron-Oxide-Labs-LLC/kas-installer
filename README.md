@@ -26,7 +26,7 @@ For example:
 - Similarly, for other lifecycle events, follow the pattern: `activity-name-lifecycle-event.sh`
 
 
-## Example Usage
+## Basic Usage
 
 ### Installing Scripts
 
@@ -51,7 +51,7 @@ For Node.js projects, you can place your scripts in the "./src/scripts" folder a
 ```json
 {
 	"scripts": {
-		"start": "kas-installer"
+		"start": "kas-installer -d"
 	}
 }
 ```
@@ -71,3 +71,7 @@ kas-installer -d [other options...]
 ```
 
 This will remove the old scripts while installing the new ones.
+
+## Example Node.js
+
+[Node Project Example](./example/node-project-example)

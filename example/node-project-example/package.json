@@ -1,0 +1,17 @@
+{
+	"name": "kas-scripts",
+	"version": "1.0.0",
+	"description": "My KDE Activity Installer scripts",
+	"main": "kas-installer",
+	"author": "Iron Oxide Labs LLC",
+	"private": true,
+	"scripts": {
+		"start": "kas-installer -d"
+	},
+	"dependencies": {
+		"kas-installer": "^0.1.10"
+	},
+	"devDependencies": {
+		"@types/node": "^20.8.10"
+	}
+}
