@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { execSync } from "child_process";
 import path from "path";
+import { homedir } from "os";
 import { Command } from "commander";
 
 import {
@@ -39,10 +40,7 @@ program
 
 const activitiesConfigFolder: string =
 	program.opts().activitiesFolder ||
-	path.join(
-		require("os").homedir(),
-		".local/share/kactivitymanagerd/activities"
-	);
+	path.join(homedir(), ".local/share/kactivitymanagerd/activities");
 const deleteOld: boolean = program.opts().deleteOld || false;
 const scriptsFolder: string =
 	program.opts().scriptsFolder || path.join(process.cwd(), "src", "scripts");
