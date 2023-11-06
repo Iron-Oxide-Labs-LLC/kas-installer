@@ -4,6 +4,7 @@
 	"description": "Installs KDE Activity Scripts",
 	"author": "Iron Oxide Labs LLC <admin@ironoxidelabs.com>",
 	"license": "MIT",
+	"type": "module",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Iron-Oxide-Labs-LLC/kas-installer.git"
@@ -14,22 +15,27 @@
 	"scripts": {
 		"start": "node ./dist/install.js",
 		"test": "jest",
-		"build": "tsc --build",
-		"clean": "tsc --build --clean",
-		"prepublish": "yarn test && yarn build"
+		"prebuild": "node scripts/prebuild.js",
+		"build": "rollup -c",
+		"clean": "rimraf ./dist",
+		"prepublish": "yarn test && yarn clean && yarn build"
 	},
 	"dependencies": {
-		"@types/node": "^20.8.10",
 		"commander": "^11.1.0",
 		"ts-node": "^10.9.1",
 		"typescript": "^5.2.2"
 	},
 	"devDependencies": {
+		"@rollup/plugin-typescript": "^11.1.5",
 		"@types/jest": "^29.5.7",
 		"@types/mock-fs": "^4.13.3",
+		"@types/node": "^20.8.10",
 		"jest": "^29.7.0",
 		"mock-fs": "^5.2.0",
-		"ts-jest": "^29.1.1"
+		"rimraf": "^5.0.5",
+		"rollup": "^4.3.0",
+		"ts-jest": "^29.1.1",
+		"tslib": "^2.6.2"
 	},
 	"jest": {
 		"transform": {

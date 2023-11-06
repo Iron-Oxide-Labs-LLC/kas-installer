@@ -8,6 +8,7 @@ import {
 	parseActivityData,
 	uninstallOldScripts,
 } from "./lib";
+import { version } from "./version";
 
 const program = new Command();
 program
@@ -16,7 +17,7 @@ program
 		"KDE Activity Installer copies and deletes scripts used for KDE Activity life-cycle events.\n" +
 			"For more details see: https://github.com/Iron-Oxide-Labs-LLC/kas-installer"
 	)
-	.version(process.env.npm_package_version as string)
+	.version(version)
 	.option("-d, --delete-old", "Delete old scripts")
 	.option(
 		"-a, --activities-folder <folder>",
