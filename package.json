@@ -18,7 +18,8 @@
 		"prebuild": "node scripts/prebuild.js",
 		"build": "rollup -c",
 		"clean": "rimraf ./dist",
-		"prepublish": "yarn test && yarn clean && yarn build"
+		"prepare": "yarn run build",
+		"prepublishOnly": "yarn test && yarn clean && yarn run build"
 	},
 	"dependencies": {
 		"commander": "^11.1.0",
