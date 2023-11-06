@@ -90,7 +90,6 @@ export const copyScriptsForEvents = async (
 		).map(async (filename) => {
 			const filePath = path.join(scriptsPath, filename);
 			const script = await fs.readFile(filePath, "utf8");
-
 			await Promise.all(
 				(Object.values(Event) as Event[]).map(async (event) => {
 					const activityName = getScriptFileActivityName(

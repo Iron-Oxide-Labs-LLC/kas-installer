@@ -22,14 +22,14 @@ program
 	.option("-d, --delete-old", "Delete old scripts")
 	.option(
 		"-a, --activities-folder <folder>",
-		"Activities config folder (default: ~/.local/share/kactivitymanagerd/activities)"
+		"KDE Activities config folder (default: ~/.local/share/kactivitymanagerd/activities)"
 	)
 	.option(
 		"-s, --scripts-folder [folder]",
 		"Scripts folder (default: ./src/scripts)"
 	)
 	.option(
-		"-i, --installed-filename [filename]",
+		"-i, --install-as [filename]",
 		"Filename to assign to installed scripts (default: kas-script.sh)"
 	)
 	.option(
@@ -70,4 +70,4 @@ if (deleteOld) {
 	);
 }
 
-console.log("Installation complete!");
+console.log("Done!");
