@@ -75,3 +75,8 @@ This will remove the old scripts while installing the new ones.
 ## Example Node.js
 
 [Node Project Example](./example/node-project-example)
+
+## Links
+
+-   NPM Package: https://www.npmjs.com/package/kas-installer
+-   Iron Oxide Labs LLC: https://www.ironoxidelabs.com
