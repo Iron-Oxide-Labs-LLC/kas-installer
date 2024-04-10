@@ -8,12 +8,18 @@
 
 3. **Copying Scripts**: Once the IDs are obtained, the installer copies your scripts to the paths expected by KDE, making them available for the specified activities and events.
 
+## Prerequisites
+
+1. qdbus: `sudo apt install qtchooser`
+
 ## Installation
 
 You can install the kas-installer globally using npm with the following command:
 
 ```bash
 npm install -g kas-installer
+
+Make sure that all prequisites are already installed before using it.
 ```
 
 ## Script Naming Convention

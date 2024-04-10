@@ -1,6 +1,6 @@
 {
 	"name": "kas-installer",
-	"version": "0.1.10",
+	"version": "0.1.11",
 	"description": "Installs KDE Activity Scripts",
 	"author": "Iron Oxide Labs LLC <admin@ironoxidelabs.com>",
 	"license": "MIT",
